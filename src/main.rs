@@ -1,5 +1,5 @@
 use crate::constant::{
-    field as initField, BlockKind, Field, Position, BLOCKS, FIELD_HEIGHT, FIELD_WIDTH,
+    BlockKind, Field, Position, BLOCKS, FIELD_HEIGHT, FIELD_WIDTH, TEMPLATE_FIELD,
 };
 use getch_rs::{Getch, Key};
 use rand::{
@@ -26,7 +26,7 @@ impl Distribution<BlockKind> for Standard {
 
 fn main() {
     let pos = Arc::new(Mutex::new(Position { x: 4, y: 0 }));
-    let field = Arc::new(Mutex::new(initField));
+    let field = Arc::new(Mutex::new(TEMPLATE_FIELD));
     let block = Arc::new(Mutex::new(rand::random::<BlockKind>()));
 
     // 画面クリア

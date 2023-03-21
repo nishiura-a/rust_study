@@ -2,7 +2,7 @@
 pub const FIELD_WIDTH: usize = 11 + 2; // フィールド＋壁
 pub const FIELD_HEIGHT: usize = 20 + 1; // フィールド＋底
 pub type Field = [[usize; FIELD_WIDTH]; FIELD_HEIGHT];
-pub static field: Field = [
+pub const TEMPLATE_FIELD: Field = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
