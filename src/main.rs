@@ -185,5 +185,5 @@ fn is_collision(field: &Field, pos: &Position, block: BlockKind) -> bool {
             }
         }
     }
-    false
+    return false;
 }
