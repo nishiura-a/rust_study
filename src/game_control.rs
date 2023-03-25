@@ -28,6 +28,7 @@ pub struct Game {
     pub next: VecDeque<BlockShape>,
     pub next_buf: VecDeque<BlockShape>,
     pub score: usize,
+    pub line: usize,
 }
 
 impl Game {
@@ -41,6 +42,7 @@ impl Game {
             next: gen_block_7().into(),
             next_buf: gen_block_7().into(),
             score: 0,
+            line: 0,
         };
         // 初期ブロックを供給
         spawn_block(&mut game).ok();
@@ -98,6 +100,7 @@ pub fn draw(
         next,
         next_buf: _,
         score,
+        ..
     }: &Game,
 ) {
     // 描画用フィールドの生成

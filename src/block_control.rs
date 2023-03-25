@@ -122,6 +122,8 @@ pub fn landing(game: &mut Game) -> Result<(), ()> {
     let line = erase_line(&mut game.field);
     // 消した段数によって得点を加算
     game.score += SCORE_TABLE[line];
+    // 消した段数の合計を加算
+    game.line += line;
     // ブロックの生成
     spawn_block(game)?;
     // 再ホールド可能にする
