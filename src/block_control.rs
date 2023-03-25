@@ -22,7 +22,11 @@ pub fn is_collision(field: &Field, pos: &Position, block: &BlockShape) -> bool {
 }
 
 // ブロックをフィールドに固定する
-pub fn fix_block(Game { field, pos, block }: &mut Game) {
+pub fn fix_block(
+    Game {
+        field, pos, block, ..
+    }: &mut Game,
+) {
     for y in 0..4 {
         for x in 0..4 {
             if block[y][x] != block_kind::NONE {
@@ -115,6 +119,8 @@ pub fn landing(game: &mut Game) -> Result<(), ()> {
     erase_line(&mut game.field);
     // ブロックの生成
     spawn_block(game)?;
+    // 再ホールド可能にする
+    game.holded = false;
     Ok(())
 }
 

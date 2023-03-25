@@ -1,7 +1,7 @@
 use crate::block_control::{
     hard_drop, is_collision, landing, move_block, rotate_left, rotate_right,
 };
-use crate::game_control::{draw, gameover, quit, Game};
+use crate::game_control::{draw, gameover, hold, quit, Game};
 use crate::position::Position;
 use block::BlockKind;
 use getch_rs::{Getch, Key};
@@ -122,6 +122,12 @@ fn main() {
                     gameover(&game);
                     break;
                 }
+                draw(&game);
+            }
+            Ok(Key::Char(' ')) => {
+                // ホールド
+                let mut game = game.lock().unwrap();
+                hold(&mut game);
                 draw(&game);
             }
             Ok(Key::Char('q')) => {
