@@ -1,12 +1,10 @@
 use crate::{
-    block::{block_kind, gen_block_7, BlockKind, BlockShape, BLOCKS, COLOR_TABLE},
+    block::{block_kind, gen_block_7, COLOR_TABLE},
     block_control::{ghost_pos, is_collision},
-    field::{Field, FIELD_HEIGHT, FIELD_WIDTH, TEMPLATE_FIELD},
+    field::{FIELD_HEIGHT, FIELD_WIDTH},
     game::{Game, NEXT_LENGTH},
     position::Position,
 };
-
-use std::collections::VecDeque;
 
 // ブロックを生成する
 // 生成に失敗した場合は`Err(())`を返す
@@ -104,7 +102,7 @@ pub fn draw(
     }
     // スコアを描画
     // カーソルをスコア位置に移動
-    println!("\x1b[22;28H{}", score);
+    println!("\x1b[22;28HSCORE [{}]", score);
     // フィールドを描画
     println!("\x1b[H"); // カーソルを先頭に移動
     for y in 0..FIELD_HEIGHT - 1 {
