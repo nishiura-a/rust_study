@@ -1,7 +1,8 @@
 use crate::block_control::{
     hard_drop, is_collision, landing, move_block, rotate_left, rotate_right,
 };
-use crate::game_control::{draw, gameover, hold, quit, Game};
+use crate::game::Game;
+use crate::game_control::{draw, gameover, hold, quit};
 use crate::position::Position;
 use block::BlockKind;
 use getch_rs::{Getch, Key};
@@ -14,6 +15,7 @@ use std::{thread, time};
 mod block;
 mod block_control;
 mod field;
+mod game;
 mod game_control;
 mod position;
 
