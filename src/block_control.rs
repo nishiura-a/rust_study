@@ -1,7 +1,8 @@
 use crate::{
     block::{block_kind, BlockShape},
     field::{Field, FIELD_HEIGHT, FIELD_WIDTH},
-    game_control::{spawn_block, Game, SCORE_TABLE},
+    game::{Game, SCORE_TABLE},
+    game_control::spawn_block,
     position::{super_rotation, Position},
 };
 
