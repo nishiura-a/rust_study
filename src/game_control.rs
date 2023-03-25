@@ -7,6 +7,15 @@ use crate::{
 
 use std::collections::VecDeque;
 
+// 得点表
+pub const SCORE_TABLE: [usize; 5] = [
+    0,   // 0段消し
+    1,   // 1段消し
+    5,   // 2段消し
+    25,  // 3段消し
+    100, // 4段消し
+];
+
 // ネクストブロックを3つ表示
 pub const NEXT_LENGTH: usize = 3;
 
@@ -18,6 +27,7 @@ pub struct Game {
     pub holded: bool,
     pub next: VecDeque<BlockShape>,
     pub next_buf: VecDeque<BlockShape>,
+    pub score: usize,
 }
 
 impl Game {
@@ -30,12 +40,14 @@ impl Game {
             holded: false,
             next: gen_block_7().into(),
             next_buf: gen_block_7().into(),
+            score: 0,
         };
         // 初期ブロックを供給
         spawn_block(&mut game).ok();
         game
     }
 }
+
 // ブロックを生成する
 // 生成に失敗した場合は`Err(())`を返す
 pub fn spawn_block(game: &mut Game) -> Result<(), ()> {
@@ -84,7 +96,8 @@ pub fn draw(
         hold,
         holded: _,
         next,
-        ..
+        next_buf: _,
+        score,
     }: &Game,
 ) {
     // 描画用フィールドの生成
@@ -128,6 +141,9 @@ pub fn draw(
             println!();
         }
     }
+    // スコアを描画
+    // カーソルをスコア位置に移動
+    println!("\x1b[22;28H{}", score);
     // フィールドを描画
     println!("\x1b[H"); // カーソルを先頭に移動
     for y in 0..FIELD_HEIGHT - 1 {

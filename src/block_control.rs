@@ -1,7 +1,7 @@
 use crate::{
     block::{block_kind, BlockShape},
     field::{Field, FIELD_HEIGHT, FIELD_WIDTH},
-    game_control::{spawn_block, Game},
+    game_control::{spawn_block, Game, SCORE_TABLE},
     position::{super_rotation, Position},
 };
 
@@ -36,8 +36,9 @@ pub fn fix_block(
     }
 }
 
-// 消せるラインがあるなら削除し、段を下げる
-pub fn erase_line(field: &mut Field) {
+// 消したライン数を返す
+pub fn erase_line(field: &mut Field) -> usize {
+    let mut count = 0;
     for y in 1..FIELD_HEIGHT - 2 {
         let mut can_erase = true;
         for x in 2..FIELD_WIDTH - 2 {
@@ -47,11 +48,13 @@ pub fn erase_line(field: &mut Field) {
             }
         }
         if can_erase {
+            count += 1;
             for y2 in (2..=y).rev() {
                 field[y2] = field[y2 - 1];
             }
         }
     }
+    count
 }
 
 // ブロックを指定した座標へ移動できるなら移動する
@@ -116,7 +119,9 @@ pub fn landing(game: &mut Game) -> Result<(), ()> {
     // ブロックをフィールドに固定
     fix_block(game);
     // ラインの削除処理
-    erase_line(&mut game.field);
+    let line = erase_line(&mut game.field);
+    // 消した段数によって得点を加算
+    game.score += SCORE_TABLE[line];
     // ブロックの生成
     spawn_block(game)?;
     // 再ホールド可能にする
