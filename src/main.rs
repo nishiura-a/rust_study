@@ -1,5 +1,9 @@
-use crate::block_control::{draw, erase_line, fix_block, is_collision, move_block, Game};
-use crate::constant::{BlockKind, Position};
+use crate::block_control::{
+    erase_line, fix_block, hard_drop, is_collision, landing, move_block, rotate_left, rotate_right,
+};
+use crate::game_control::{draw, gameover, quit, spawn_block, Game};
+use crate::position::Position;
+use block::BlockKind;
 use getch_rs::{Getch, Key};
 use rand::{
     distributions::{Distribution, Standard},
@@ -7,8 +11,11 @@ use rand::{
 };
 use std::sync::{Arc, Mutex};
 use std::{thread, time};
+mod block;
 mod block_control;
-mod constant;
+mod field;
+mod game_control;
+mod position;
 
 impl Distribution<BlockKind> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> BlockKind {
@@ -45,18 +52,16 @@ fn main() {
                     x: game.pos.x,
                     y: game.pos.y + 1,
                 };
-                if !is_collision(&game.field, &new_pos, game.block) {
+                if !is_collision(&game.field, &new_pos, &game.block) {
                     // posの座標を更新
                     game.pos = new_pos;
                 } else {
-                    // ブロックをフィールドに固定
-                    fix_block(&mut game);
-                    // ラインの削除処理
-                    erase_line(&mut game.field);
-                    // posの座標を初期値へ
-                    game.pos = Position::init();
-                    // ブロックをランダム生成
-                    game.block = rand::random();
+                    // ブロック落下後の処理
+                    if landing(&mut game).is_err() {
+                        // ブロックを生成できないならゲームオーバー
+                        gameover(&game);
+                        break;
+                    }
                 }
                 // フィールドを描画
                 draw(&game);
@@ -96,12 +101,35 @@ fn main() {
                 move_block(&mut game, new_pos);
                 draw(&game);
             }
+            Ok(Key::Char('x')) => {
+                // 右回転
+                let mut game = game.lock().unwrap();
+                rotate_right(&mut game);
+                draw(&game);
+            }
+            Ok(Key::Char('z')) => {
+                // 左回転
+                let mut game = game.lock().unwrap();
+                rotate_left(&mut game);
+                draw(&game);
+            }
+            Ok(Key::Up) => {
+                // ハードドロップ
+                let mut game = game.lock().unwrap();
+                hard_drop(&mut game);
+                if landing(&mut game).is_err() {
+                    // ブロックを生成できないならゲームオーバー
+                    gameover(&game);
+                    break;
+                }
+                draw(&game);
+            }
             Ok(Key::Char('q')) => {
-                // カーソルを再表示
-                println!("\x1b[?25h");
-                return;
+                break;
             }
             _ => (), // 何もしない
         }
     }
+    // 終了処理
+    quit();
 }
