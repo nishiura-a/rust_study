@@ -63,3 +63,9 @@ pub struct Position {
     pub x: usize,
     pub y: usize,
 }
+
+impl Position {
+    pub fn init() -> Position {
+        Position { x: 4, y: 0 }
+    }
+}
