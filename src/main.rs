@@ -1,7 +1,7 @@
 use crate::block_control::{
-    erase_line, fix_block, hard_drop, is_collision, landing, move_block, rotate_left, rotate_right,
+    hard_drop, is_collision, landing, move_block, rotate_left, rotate_right,
 };
-use crate::game_control::{draw, gameover, quit, spawn_block, Game};
+use crate::game_control::{draw, gameover, quit, Game};
 use crate::position::Position;
 use block::BlockKind;
 use getch_rs::{Getch, Key};
