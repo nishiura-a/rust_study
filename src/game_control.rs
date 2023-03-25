@@ -5,12 +5,18 @@ use crate::{
     position::Position,
 };
 
+use std::collections::VecDeque;
+
+// ネクストブロックを3つ表示
+pub const NEXT_LENGTH: usize = 3;
+
 pub struct Game {
     pub field: Field,
     pub pos: Position,
     pub block: BlockShape,
     pub hold: Option<BlockShape>,
     pub holded: bool,
+    pub next: VecDeque<BlockShape>,
 }
 
 impl Game {
@@ -21,6 +27,13 @@ impl Game {
             block: BLOCKS[rand::random::<BlockKind>() as usize],
             hold: None,
             holded: false,
+            next: {
+                let mut deque = VecDeque::new();
+                for _ in 0..NEXT_LENGTH {
+                    deque.push_back(BLOCKS[rand::random::<BlockKind>() as usize]);
+                }
+                deque
+            },
         }
     }
 }
@@ -29,8 +42,11 @@ impl Game {
 pub fn spawn_block(game: &mut Game) -> Result<(), ()> {
     // posの座標を初期値へ
     game.pos = Position::init();
-    // ブロックをランダム生成
-    game.block = BLOCKS[rand::random::<BlockKind>() as usize];
+    // ネクストキューから次のブロックを取り出す
+    game.block = game.next.pop_front().unwrap();
+    // ブロックをランダム生成して、ネクストキューに追加
+    game.next
+        .push_back(BLOCKS[rand::random::<BlockKind>() as usize]);
     // 衝突チェック
     if is_collision(&game.field, &game.pos, &game.block) {
         Err(())
@@ -60,7 +76,8 @@ pub fn draw(
         pos,
         block,
         hold,
-        ..
+        holded: _,
+        next,
     }: &Game,
 ) {
     // 描画用フィールドの生成
@@ -89,6 +106,17 @@ pub fn draw(
             print!("\x1b[{};28H", y + 3); // カーソルを移動
             for x in 0..4 {
                 print!("{}", COLOR_TABLE[hold[y][x]]);
+            }
+            println!();
+        }
+    }
+    // ネクストを描画
+    println!("\x1b[8;28HNEXT"); // カーソルをネクスト位置に移動
+    for (i, next) in next.iter().enumerate() {
+        for y in 0..4 {
+            print!("\x1b[{};28H", i * 4 + y + 9); // カーソルを移動
+            for x in 0..4 {
+                print!("{}", COLOR_TABLE[next[y][x]]);
             }
             println!();
         }
