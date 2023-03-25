@@ -47,7 +47,7 @@ fn main() {
                 // nミリ秒間スリーブする
                 println!("{}", (game.lock().unwrap().line));
                 let sleep_msec =
-                    match 1000u64.saturating_sub((game.lock().unwrap().line as u64) * 100) {
+                    match 1000u64.saturating_sub((game.lock().unwrap().line as u64) * 50) {
                         0 => 100,
                         msec => msec,
                     };
