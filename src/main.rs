@@ -1,7 +1,7 @@
 use crate::block_control::{
     hard_drop, is_collision, landing, move_block, rotate_left, rotate_right,
 };
-use crate::game_control::{draw, gameover, quit, Game};
+use crate::game_control::{draw, gameover, hold, quit, Game};
 use crate::position::Position;
 use block::BlockKind;
 use getch_rs::{Getch, Key};
@@ -44,8 +44,15 @@ fn main() {
         let game = Arc::clone(&game);
         let _ = thread::spawn(move || {
             loop {
-                // 1秒間スリーブする
-                thread::sleep(time::Duration::from_millis(1000));
+                // nミリ秒間スリーブする
+                println!("{}", (game.lock().unwrap().line));
+                let sleep_msec =
+                    match 1000u64.saturating_sub((game.lock().unwrap().line as u64) * 50) {
+                        0 => 100,
+                        msec => msec,
+                    };
+                print!("{}", sleep_msec);
+                thread::sleep(time::Duration::from_millis(sleep_msec));
                 // 自然落下
                 let mut game = game.lock().unwrap();
                 let new_pos = Position {
@@ -122,6 +129,12 @@ fn main() {
                     gameover(&game);
                     break;
                 }
+                draw(&game);
+            }
+            Ok(Key::Char(' ')) => {
+                // ホールド
+                let mut game = game.lock().unwrap();
+                hold(&mut game);
                 draw(&game);
             }
             Ok(Key::Char('q')) => {
