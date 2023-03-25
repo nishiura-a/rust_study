@@ -1,5 +1,5 @@
 use crate::{
-    block::{block_kind, BlockKind, BlockShape, BLOCKS, COLOR_TABLE},
+    block::{block_kind, gen_block_7, BlockKind, BlockShape, BLOCKS, COLOR_TABLE},
     block_control::{ghost_pos, is_collision},
     field::{Field, FIELD_HEIGHT, FIELD_WIDTH, TEMPLATE_FIELD},
     position::Position,
@@ -17,24 +17,23 @@ pub struct Game {
     pub hold: Option<BlockShape>,
     pub holded: bool,
     pub next: VecDeque<BlockShape>,
+    pub next_buf: VecDeque<BlockShape>,
 }
 
 impl Game {
     pub fn new() -> Game {
-        Game {
+        let mut game = Game {
             field: TEMPLATE_FIELD,
             pos: Position::init(),
             block: BLOCKS[rand::random::<BlockKind>() as usize],
             hold: None,
             holded: false,
-            next: {
-                let mut deque = VecDeque::new();
-                for _ in 0..NEXT_LENGTH {
-                    deque.push_back(BLOCKS[rand::random::<BlockKind>() as usize]);
-                }
-                deque
-            },
-        }
+            next: gen_block_7().into(),
+            next_buf: gen_block_7().into(),
+        };
+        // 初期ブロックを供給
+        spawn_block(&mut game).ok();
+        game
     }
 }
 // ブロックを生成する
@@ -45,8 +44,15 @@ pub fn spawn_block(game: &mut Game) -> Result<(), ()> {
     // ネクストキューから次のブロックを取り出す
     game.block = game.next.pop_front().unwrap();
     // ブロックをランダム生成して、ネクストキューに追加
-    game.next
-        .push_back(BLOCKS[rand::random::<BlockKind>() as usize]);
+    if let Some(next) = game.next_buf.pop_front() {
+        // バフからネクストキューに供給
+        game.next.push_back(next);
+    } else {
+        // バフを生成
+        game.next_buf = gen_block_7().into();
+        // バフからネクストキューに供給
+        game.next.push_back(game.next_buf.pop_front().unwrap());
+    }
     // 衝突チェック
     if is_collision(&game.field, &game.pos, &game.block) {
         Err(())
@@ -78,6 +84,7 @@ pub fn draw(
         hold,
         holded: _,
         next,
+        ..
     }: &Game,
 ) {
     // 描画用フィールドの生成
@@ -110,9 +117,9 @@ pub fn draw(
             println!();
         }
     }
-    // ネクストを描画
+    // ネクストを描画(3つ)
     println!("\x1b[8;28HNEXT"); // カーソルをネクスト位置に移動
-    for (i, next) in next.iter().enumerate() {
+    for (i, next) in next.iter().take(NEXT_LENGTH).enumerate() {
         for y in 0..4 {
             print!("\x1b[{};28H", i * 4 + y + 9); // カーソルを移動
             for x in 0..4 {
